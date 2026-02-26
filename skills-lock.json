@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "skills": {
+    "frontend-design": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "computedHash": "063a0e6448123cd359ad0044cc46b0e490cc7964d45ef4bb9fd842bd2ffbca67"
+    },
+    "nano-banana-pro": {
+      "source": "intellectronica/agent-skills",
+      "sourceType": "github",
+      "computedHash": "eacaa3b7f0512e9c4793b38be0e2242dc81071e61d51e333ac114148d1a9422b"
+    },
+    "product-photography": {
+      "source": "inference-sh-9/skills",
+      "sourceType": "github",
+      "computedHash": "67b7de65b7e5c790460f0c3a0b17c648f1513560692151dc583489bc2d00924b"
+    }
+  }
+}

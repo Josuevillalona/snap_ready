@@ -1,0 +1,14 @@
+[project]
+name = "snapready"
+version = "0.1.0"
+description = "One-click crop + retouch for headshot photographers"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "python-multipart",
+    "jinja2",
+    "pillow",
+    "mediapipe",
+    "google-genai",
+]

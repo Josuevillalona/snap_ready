@@ -1,0 +1,7 @@
+uploads/
+test-output/
+__pycache__/
+*.pyc
+.env
+models/*.tflite
+.DS_Store
