@@ -72,8 +72,8 @@ def retouch_image(pil_image: Image.Image, intensity: str = "medium") -> Image.Im
         model="gemini-3-pro-image-preview",
         contents=[pil_image, prompt],
         config=types.GenerateContentConfig(
-            response_modalities=["TEXT", "IMAGE"],
-            image_config=types.ImageConfig(image_size=image_size),
+            response_modalities=["IMAGE"],
+            response_mime_type="image/jpeg",
         ),
     )
 
