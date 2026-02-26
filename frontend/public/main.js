@@ -3,7 +3,7 @@
 // Change this to your Render URL later!
 const API_BASE_URL = window.location.hostname === 'localhost'
   ? 'http://localhost:8000'
-  : 'https://snapready-api.onrender.com';
+  : 'https://snap-ready.onrender.com';
 
 document.addEventListener("DOMContentLoaded", () => {
   // === Upload Page ===
