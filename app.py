@@ -4,10 +4,9 @@ import uuid
 from pathlib import Path
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
-from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
-from starlette.requests import Request
+from fastapi.middleware.cors import CORSMiddleware
 from PIL import Image
 import io
 
@@ -21,15 +20,23 @@ UPLOAD_DIR.mkdir(exist_ok=True)
 MAX_UPLOAD_BYTES = 20 * 1024 * 1024  # 20 MB
 ALLOWED_TYPES = {"image/jpeg", "image/png"}
 
-app = FastAPI(title="SnapReady")
-app.mount("/static", StaticFiles(directory="static"), name="static")
+app = FastAPI(title="SnapReady API")
+
+# Configure CORS
+origins = [
+    "http://localhost:3000",             # Local development frontend
+    "https://snapready.vercel.app",      # Vercel preview/production (Update with actual Vercel domain later)
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"], # Allow all for now during MVP testing to prevent issues. Restrict later.
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
-templates = Jinja2Templates(directory="templates")
-
-
-@app.get("/", response_class=HTMLResponse)
-async def index(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
 
 
 @app.post("/process")
@@ -112,20 +119,7 @@ async def reprocess(job_id: str, intensity: str = Form("medium")):
     return JSONResponse({"job_id": job_id, "intensity": intensity})
 
 
-@app.get("/result/{job_id}", response_class=HTMLResponse)
-async def result_page(request: Request, job_id: str):
-    job_dir = UPLOAD_DIR / job_id
-    if not job_dir.exists():
-        raise HTTPException(404, "Job not found.")
 
-    intensity_file = job_dir / "intensity.txt"
-    current_intensity = intensity_file.read_text().strip() if intensity_file.exists() else "medium"
-
-    return templates.TemplateResponse("result.html", {
-        "request": request,
-        "job_id": job_id,
-        "intensity": current_intensity,
-    })
 
 
 @app.get("/download/{job_id}")

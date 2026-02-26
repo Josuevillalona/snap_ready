@@ -1,0 +1,10 @@
+{
+    "framework": null,
+    "buildCommand": null,
+    "outputDirectory": "frontend/public",
+    "routes": [
+        {
+            "handle": "filesystem"
+        }
+    ]
+}

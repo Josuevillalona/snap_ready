@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SnapReady — Result</title>
+  <link rel="stylesheet" href="/style.css?v=3">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Snap<span>Ready</span></h1>
+    </header>
+
+    <div class="comparison-container">
+      <div class="comparison-labels">
+        <span>Before</span>
+        <span>After</span>
+      </div>
+      <div class="comparison" id="comparison">
+        <img class="comparison-img" id="before-img"
+             src="" alt="Before">
+        <div class="comparison-overlay" id="overlay">
+          <img class="comparison-img" id="after-img"
+               src="" alt="After">
+        </div>
+        <div class="comparison-handle" id="handle">
+          <div class="handle-line"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <fieldset class="intensity-group">
+        <legend>Retouch Intensity</legend>
+        <div class="intensity-options">
+          <label><input type="radio" name="intensity" value="light"><span>Light</span></label>
+          <label><input type="radio" name="intensity" value="medium"><span>Medium</span></label>
+          <label><input type="radio" name="intensity" value="strong"><span>Strong</span></label>
+        </div>
+      </fieldset>
+
+      <div class="action-buttons">
+        <a id="download-btn" href="#" class="btn-primary">Download ZIP</a>
+        <a href="/" class="btn-secondary">Process Another</a>
+      </div>
+    </div>
+
+    <div id="spinner-overlay" class="spinner-overlay">
+      <div class="spinner"></div>
+      <p>Reprocessing</p>
+    </div>
+  </div>
+
+  <script src="/main.js?v=4"></script>
+</body>
+</html>

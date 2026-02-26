@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SnapReady</title>
+  <link rel="stylesheet" href="/style.css?v=3">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Snap<span>Ready</span></h1>
+      <p class="subtitle">Upload a headshot. Cropped and retouched in seconds.</p>
+    </header>
+
+    <form id="upload-form" enctype="multipart/form-data">
+      <div id="dropzone" class="dropzone">
+        <div class="dropzone-content">
+          <div class="dropzone-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+          </div>
+          <p>Drop your photo here</p>
+          <p class="hint">JPG or PNG up to 20 MB</p>
+        </div>
+        <input type="file" id="file-input" name="file" accept="image/jpeg,image/png" hidden>
+      </div>
+
+      <div id="preview-area" class="preview-area" hidden>
+        <img id="preview-img" alt="Preview">
+        <button type="button" id="clear-btn" class="btn-clear">Clear</button>
+      </div>
+
+      <fieldset class="intensity-group">
+        <legend>Retouch Intensity</legend>
+        <div class="intensity-options">
+          <label><input type="radio" name="intensity" value="light"><span>Light</span></label>
+          <label><input type="radio" name="intensity" value="medium" checked><span>Medium</span></label>
+          <label><input type="radio" name="intensity" value="strong"><span>Strong</span></label>
+        </div>
+      </fieldset>
+
+      <button type="submit" id="submit-btn" class="btn-primary" disabled>Process Photo</button>
+    </form>
+
+    <div id="error-banner" class="error-banner" hidden></div>
+
+    <div id="spinner-overlay" class="spinner-overlay">
+      <div class="spinner"></div>
+      <p>Processing</p>
+    </div>
+  </div>
+
+  <script src="/main.js?v=3"></script>
+</body>
+</html>
