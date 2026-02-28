@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SnapReady — Result</title>
   <link rel="stylesheet" href="/style.css?v=3">
 </head>
+
 <body>
   <div class="container">
     <header>
@@ -18,11 +20,9 @@
         <span>After</span>
       </div>
       <div class="comparison" id="comparison">
-        <img class="comparison-img" id="before-img"
-             src="" alt="Before">
+        <img class="comparison-img" id="before-img" src="" alt="Before">
         <div class="comparison-overlay" id="overlay">
-          <img class="comparison-img" id="after-img"
-               src="" alt="After">
+          <img class="comparison-img" id="after-img" src="" alt="After">
         </div>
         <div class="comparison-handle" id="handle">
           <div class="handle-line"></div>
@@ -40,9 +40,27 @@
         </div>
       </fieldset>
 
+      <fieldset class="zoom-group">
+        <legend>Crop Zoom</legend>
+        <div class="zoom-slider-container">
+          <span class="zoom-label">Tight</span>
+          <input type="range" id="crop-zoom" name="zoom" min="0.5" max="1.5" step="0.1" value="1.0">
+          <span class="zoom-label">Wide</span>
+        </div>
+      </fieldset>
+
       <div class="action-buttons">
         <a id="download-btn" href="#" class="btn-primary">Download ZIP</a>
         <a href="/" class="btn-secondary">Process Another</a>
+      </div>
+
+      <div class="feedback-section" id="feedback-section">
+        <p class="feedback-label">Was this result good?</p>
+        <div class="feedback-buttons">
+          <button class="feedback-btn feedback-good" id="btn-good" title="Good result">&#128077;</button>
+          <button class="feedback-btn feedback-bad" id="btn-bad" title="Bad result">&#128078;</button>
+        </div>
+        <p class="feedback-confirmation" id="feedback-confirmation" hidden>Thanks for your feedback!</p>
       </div>
     </div>
 
@@ -54,4 +72,5 @@
 
   <script src="/main.js?v=4"></script>
 </body>
+
 </html>

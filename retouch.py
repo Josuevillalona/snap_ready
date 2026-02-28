@@ -57,7 +57,8 @@ def _detect_resolution(pil_image: Image.Image) -> str:
 def retouch_image(pil_image: Image.Image, intensity: str = "medium") -> Image.Image:
     """Send image to Gemini for retouching and return the result."""
     client = _get_client()
-    prompt = PROMPTS.get(intensity, PROMPTS["medium"])
+    from feedback import get_active_prompt
+    prompt = get_active_prompt(intensity)
     resolution = _detect_resolution(pil_image)
 
     # Map resolution string to SDK enum

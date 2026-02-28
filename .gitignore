@@ -4,4 +4,5 @@ __pycache__/
 *.pyc
 .env
 
+prompt_overrides.json
 .DS_Store

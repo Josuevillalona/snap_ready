@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SnapReady</title>
   <link rel="stylesheet" href="/style.css?v=3">
 </head>
+
 <body>
   <div class="container">
     <header>
@@ -18,8 +20,8 @@
         <div class="dropzone-content">
           <div class="dropzone-icon">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <polyline points="17 8 12 3 7 8"/>
-              <line x1="12" y1="3" x2="12" y2="15"/>
+              <polyline points="17 8 12 3 7 8" />
+              <line x1="12" y1="3" x2="12" y2="15" />
             </svg>
           </div>
           <p>Drop your photo here</p>
@@ -47,6 +49,13 @@
 
     <div id="error-banner" class="error-banner" hidden></div>
 
+    <div class="gallery-section" id="gallery-section" hidden>
+      <h2>Your Headshots</h2>
+      <div class="gallery-grid" id="gallery-grid">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+
     <div id="spinner-overlay" class="spinner-overlay">
       <div class="spinner"></div>
       <p>Processing</p>
@@ -55,4 +64,5 @@
 
   <script src="/main.js?v=3"></script>
 </body>
+
 </html>

@@ -96,13 +96,19 @@ def _crop_centered(
     return cropped.resize((target_w, target_h), Image.LANCZOS)
 
 
-def crop_headshot_square(pil_image: Image.Image, face: dict) -> Image.Image:
-    """Crop to 1200x1200 square centered on face."""
+def crop_headshot_square(pil_image: Image.Image, face: dict, zoom: float = 1.0) -> Image.Image:
+    """Crop to 1200x1200 square centered on face. Zoom > 1 is wider, < 1 is tighter."""
+    # Base paddings (zoom=1.0)
+    base_top, base_bottom = 0.65, 0.55
+    base_left, base_right = 0.55, 0.55
+
     return _crop_centered(
         pil_image, face,
         target_w=1200, target_h=1200,
-        pad_top=0.65, pad_bottom=0.55,
-        pad_left=0.55, pad_right=0.55,
+        pad_top=base_top * zoom, 
+        pad_bottom=base_bottom * zoom,
+        pad_left=base_left * zoom, 
+        pad_right=base_right * zoom,
     )
 
 

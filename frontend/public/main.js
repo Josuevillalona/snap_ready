@@ -10,6 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const uploadForm = document.getElementById("upload-form");
   if (uploadForm) {
     initUploadPage();
+    initGallery();
   }
 
   // === Result Page (comparison slider) ===
@@ -18,8 +19,21 @@ document.addEventListener("DOMContentLoaded", () => {
     initResultPage();
     initComparisonSlider();
     initIntensityReprocess();
+    initFeedback();
   }
 });
+
+// History Manager
+const JobHistory = {
+  get: () => JSON.parse(localStorage.getItem('snapready_jobs') || '[]'),
+  add: (jobId) => {
+    const jobs = JobHistory.get();
+    if (!jobs.includes(jobId)) {
+      jobs.unshift(jobId);
+      localStorage.setItem('snapready_jobs', JSON.stringify(jobs));
+    }
+  }
+};
 
 /* ---- Upload Page ---- */
 function initUploadPage() {
@@ -95,7 +109,16 @@ function initUploadPage() {
         throw new Error(data.detail || "Processing failed");
       }
       const data = await resp.json();
-      window.location.href = `/result.html?job_id=${data.job_id}`;
+      JobHistory.add(data.job_id);
+
+      // Reset form visually, but don't redirect yet
+      spinner.classList.remove("active");
+      clearBtn.click();
+
+      // Show in gallery and start polling
+      addJobToGallery(data.job_id, true);
+      pollJob(data.job_id);
+
     } catch (err) {
       spinner.classList.remove("active");
       errorBanner.textContent = err.message;
@@ -104,11 +127,89 @@ function initUploadPage() {
   });
 }
 
+/* ---- Gallery & Polling ---- */
+function initGallery() {
+  const jobs = JobHistory.get();
+  if (jobs.length > 0) {
+    document.getElementById("gallery-section").hidden = false;
+    jobs.forEach(jobId => {
+      addJobToGallery(jobId, false);
+      // Verify status of returning jobs
+      pollJob(jobId);
+    });
+  }
+}
+
+function addJobToGallery(jobId, isNew = false) {
+  const section = document.getElementById("gallery-section");
+  const grid = document.getElementById("gallery-grid");
+  section.hidden = false;
+
+  // Don't add duplicate
+  if (document.getElementById(`job-${jobId}`)) return;
+
+  const item = document.createElement("div");
+  item.className = "gallery-item";
+  item.id = `job-${jobId}`;
+
+  // Skeleton loader initially
+  item.innerHTML = `
+    <div class="gallery-loader" id="loader-${jobId}">
+      <div class="spinner" style="width:20px;height:20px;border-width:2px;margin:0"></div>
+    </div>
+    <img id="img-${jobId}" style="opacity:0">
+  `;
+
+  if (isNew) {
+    grid.prepend(item);
+  } else {
+    grid.appendChild(item);
+  }
+
+  item.addEventListener("click", () => {
+    // Only clickable if finished (loader is hidden)
+    if (document.getElementById(`loader-${jobId}`).hidden) {
+      window.location.href = `/result.html?job_id=${jobId}`;
+    }
+  });
+}
+
+function updateGalleryItem(jobId, status) {
+  const loader = document.getElementById(`loader-${jobId}`);
+  const img = document.getElementById(`img-${jobId}`);
+  if (!loader || !img) return;
+
+  if (status === "completed") {
+    loader.hidden = true;
+    img.src = `${API_BASE_URL}/uploads/${jobId}/retouched.jpg?t=${Date.now()}`;
+    img.style.opacity = "1";
+  } else if (status === "failed") {
+    loader.innerHTML = `<span style="color:var(--red)">Failed</span>`;
+  }
+}
+
+async function pollJob(jobId) {
+  try {
+    const resp = await fetch(`${API_BASE_URL}/status/${jobId}`);
+    if (!resp.ok) return;
+    const data = await resp.json();
+
+    updateGalleryItem(jobId, data.status);
+
+    if (data.status === "processing") {
+      setTimeout(() => pollJob(jobId), 2000);
+    }
+  } catch (e) {
+    console.warn("Polling error", e);
+  }
+}
+
 /* ---- Result Page Init ---- */
 function initResultPage() {
   const urlParams = new URLSearchParams(window.location.search);
   const jobId = urlParams.get('job_id');
   const intensity = urlParams.get('intensity') || 'medium';
+  const zoom = urlParams.get('zoom') || '1.0';
 
   if (!jobId) {
     window.location.href = '/';
@@ -120,9 +221,12 @@ function initResultPage() {
   document.getElementById('after-img').src = `${API_BASE_URL}/uploads/${jobId}/retouched.jpg`;
   document.getElementById('download-btn').href = `${API_BASE_URL}/download/${jobId}`;
 
-  // Set initial radio
+  // Set initial controls
   const radio = document.querySelector(`input[name="intensity"][value="${intensity}"]`);
   if (radio) radio.checked = true;
+
+  const zoomSlider = document.getElementById("crop-zoom");
+  if (zoomSlider) zoomSlider.value = zoom;
 }
 
 /* ---- Comparison Slider ---- */
@@ -161,18 +265,24 @@ function initComparisonSlider() {
   document.addEventListener("touchend", () => { isDragging = false; });
 }
 
-/* ---- Intensity Reprocess ---- */
+/* ---- Intensity & Zoom Reprocess ---- */
 function initIntensityReprocess() {
-  const radios = document.querySelectorAll('input[name="intensity"]');
+  const controls = document.querySelectorAll('input[name="intensity"], input[name="zoom"]');
   const spinner = document.getElementById("spinner-overlay");
+  const beforeImg = document.getElementById("before-img");
   const afterImg = document.getElementById("after-img");
+  let pollingInterval;
 
-  radios.forEach((radio) => {
-    radio.addEventListener("change", async () => {
+  controls.forEach((control) => {
+    control.addEventListener("change", async () => {
       spinner.classList.add("active");
 
+      const intensity = document.querySelector('input[name="intensity"]:checked').value;
+      const zoom = document.getElementById("crop-zoom").value;
+
       const formData = new FormData();
-      formData.append("intensity", radio.value);
+      formData.append("intensity", intensity);
+      formData.append("zoom", zoom);
 
       const urlParams = new URLSearchParams(window.location.search);
       const jobId = urlParams.get('job_id');
@@ -186,18 +296,94 @@ function initIntensityReprocess() {
           const data = await resp.json();
           throw new Error(data.detail || "Reprocessing failed");
         }
-        // Cache-bust reload of retouched image
-        afterImg.src = `${API_BASE_URL}/uploads/${jobId}/retouched.jpg?t=${Date.now()}`;
 
-        // Update URL so a refresh keeps the same intensity
+        // Update URL state
         const newUrl = new URL(window.location);
-        newUrl.searchParams.set('intensity', radio.value);
+        newUrl.searchParams.set('intensity', intensity);
+        newUrl.searchParams.set('zoom', zoom);
         window.history.replaceState({}, '', newUrl);
+
+        // Start polling for completion
+        startPollingReprocess(jobId, spinner, beforeImg, afterImg);
+
+        // Reset feedback
+        resetFeedbackUI();
+
       } catch (err) {
         alert(err.message);
-      } finally {
         spinner.classList.remove("active");
       }
     });
   });
+
+  async function startPollingReprocess(jobId, spinner, beforeImg, afterImg) {
+    if (pollingInterval) clearTimeout(pollingInterval);
+
+    try {
+      const resp = await fetch(`${API_BASE_URL}/status/${jobId}`);
+      if (!resp.ok) return;
+      const data = await resp.json();
+
+      if (data.status === "completed") {
+        spinner.classList.remove("active");
+        const t = Date.now();
+        beforeImg.src = `${API_BASE_URL}/uploads/${jobId}/cropped_square.jpg?t=${t}`;
+        afterImg.src = `${API_BASE_URL}/uploads/${jobId}/retouched.jpg?t=${t}`;
+      } else if (data.status === "failed") {
+        spinner.classList.remove("active");
+        alert("Reprocessing failed: " + data.error);
+      } else {
+        pollingInterval = setTimeout(() => startPollingReprocess(jobId, spinner, beforeImg, afterImg), 2000);
+      }
+    } catch (e) {
+      console.warn("Polling error", e);
+      spinner.classList.remove("active");
+    }
+  }
+}
+
+function resetFeedbackUI() {
+  const btnGood = document.getElementById("btn-good");
+  const btnBad = document.getElementById("btn-bad");
+  const confirmation = document.getElementById("feedback-confirmation");
+  if (btnGood && btnBad && confirmation) {
+    btnGood.classList.remove("selected");
+    btnBad.classList.remove("selected");
+    btnGood.disabled = false;
+    btnBad.disabled = false;
+    confirmation.hidden = true;
+  }
+}
+
+/* ---- Feedback Rating ---- */
+function initFeedback() {
+  const btnGood = document.getElementById("btn-good");
+  const btnBad = document.getElementById("btn-bad");
+  const confirmation = document.getElementById("feedback-confirmation");
+  if (!btnGood || !btnBad) return;
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const jobId = urlParams.get("job_id");
+  if (!jobId) return;
+
+  function submitRating(rating) {
+    // Immediate visual response
+    btnGood.classList.remove("selected");
+    btnBad.classList.remove("selected");
+    if (rating === "good") btnGood.classList.add("selected");
+    else btnBad.classList.add("selected");
+    btnGood.disabled = true;
+    btnBad.disabled = true;
+    confirmation.hidden = false;
+
+    // Fire and forget — silent network failure
+    const formData = new FormData();
+    formData.append("rating", rating);
+    fetch(`${API_BASE_URL}/rate/${jobId}`, { method: "POST", body: formData }).catch(() => { });
+  }
+
+  btnGood.addEventListener("click", () => submitRating("good"));
+  btnBad.addEventListener("click", () => submitRating("bad"));
+
+  // Note: reset logic is now handled in `resetFeedbackUI` called by `initIntensityReprocess`
 }
