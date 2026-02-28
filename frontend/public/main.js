@@ -191,6 +191,28 @@ function updateGalleryItem(jobId, status) {
 async function pollJob(jobId) {
   try {
     const resp = await fetch(`${API_BASE_URL}/status/${jobId}`);
+
+    // If the backend says 404, the job files were deleted (e.g. Render server restarted)
+    if (resp.status === 404) {
+      updateGalleryItem(jobId, "expired");
+
+      // Remove from history
+      const jobs = JobHistory.get().filter(id => id !== jobId);
+      localStorage.setItem('snapready_jobs', JSON.stringify(jobs));
+
+      // Remove from UI after a brief delay
+      setTimeout(() => {
+        const item = document.getElementById(`job-${jobId}`);
+        if (item) item.remove();
+
+        // Hide section if empty
+        if (JobHistory.get().length === 0) {
+          document.getElementById("gallery-section").hidden = true;
+        }
+      }, 2000);
+      return;
+    }
+
     if (!resp.ok) return;
     const data = await resp.json();
 
