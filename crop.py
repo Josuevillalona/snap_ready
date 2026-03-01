@@ -98,9 +98,9 @@ def _crop_centered(
 
 def crop_headshot_square(pil_image: Image.Image, face: dict, zoom: float = 1.0) -> Image.Image:
     """Crop to 1200x1200 square centered on face. Zoom > 1 is wider, < 1 is tighter."""
-    # Base paddings (zoom=1.0)
-    base_top, base_bottom = 0.65, 0.55
-    base_left, base_right = 0.55, 0.55
+    # Base paddings (zoom=1.0) - Increased for a wider default crop
+    base_top, base_bottom = 0.95, 0.85
+    base_left, base_right = 0.85, 0.85
 
     return _crop_centered(
         pil_image, face,

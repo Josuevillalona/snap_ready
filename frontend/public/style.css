@@ -24,7 +24,9 @@
   --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -37,6 +39,10 @@ body {
   min-height: 100vh;
   position: relative;
   overflow-x: hidden;
+}
+
+[hidden] {
+  display: none !important;
 }
 
 /* Subtle film grain overlay */
@@ -86,6 +92,66 @@ header h1 span {
   font-size: 0.95rem;
   font-weight: 400;
   letter-spacing: 0.02em;
+}
+
+/* Auth UI */
+.header-top {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+}
+
+.header-top h1 {
+  grid-column: 2;
+  margin: 0;
+}
+
+.auth-controls {
+  grid-column: 3;
+  justify-self: end;
+  display: flex;
+  align-items: center;
+}
+
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.avatar-img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  object-fit: cover;
+}
+
+.btn-small {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.7rem;
+}
+
+.auth-gate {
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 3rem 2rem;
+  text-align: center;
+  background: var(--bg-surface);
+  margin-bottom: 2rem;
+  animation: fadeUp 0.5s ease-out 0.1s both;
+}
+
+.auth-gate h2 {
+  font-family: var(--font-display);
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+
+.auth-gate p {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.5;
 }
 
 /* Dropzone */
@@ -254,7 +320,7 @@ header h1 span {
   pointer-events: none;
 }
 
-.intensity-options input[type="radio"]:checked + span {
+.intensity-options input[type="radio"]:checked+span {
   color: var(--accent);
 }
 
@@ -364,7 +430,9 @@ header h1 span {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .spinner-overlay p {
@@ -410,6 +478,7 @@ header h1 span {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.15s ease-out, filter 0.2s ease;
 }
 
 .comparison-overlay {
@@ -499,6 +568,7 @@ header h1 span {
     opacity: 0;
     transform: translateY(-12px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -510,6 +580,7 @@ header h1 span {
     opacity: 0;
     transform: translateY(12px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -517,16 +588,37 @@ header h1 span {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  20% { transform: translateX(-6px); }
-  40% { transform: translateX(5px); }
-  60% { transform: translateX(-3px); }
-  80% { transform: translateX(2px); }
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  20% {
+    transform: translateX(-6px);
+  }
+
+  40% {
+    transform: translateX(5px);
+  }
+
+  60% {
+    transform: translateX(-3px);
+  }
+
+  80% {
+    transform: translateX(2px);
+  }
 }
 
 /* Feedback rating */
@@ -664,36 +756,154 @@ input[type="range"] {
   overflow: hidden;
   background: var(--bg-surface);
   border: 1px solid var(--border);
-  transition: transform var(--transition), border-color var(--transition);
+  transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition);
+  opacity: 0;
+  animation: fadeIn 0.4s ease forwards;
+}
+
+.gallery-item.clickable {
   cursor: pointer;
 }
 
-.gallery-item:hover {
-  transform: translateY(-2px);
-  border-color: var(--text-secondary);
+.gallery-item.clickable:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
 }
 
 .gallery-item img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: filter 0.3s ease, transform 0.3s ease;
 }
 
-.gallery-loader {
+.gallery-item.processing img {
+  filter: blur(4px) brightness(0.6);
+  transform: scale(1.05);
+}
+
+/* Status Badge */
+.status-badge {
   position: absolute;
-  inset: 0;
-  background: var(--bg-surface);
+  top: 8px;
+  right: 8px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: rgba(10, 10, 10, 0.8);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: all 0.3s ease;
+  z-index: 10;
+}
+
+.gallery-item.clickable .status-badge,
+.gallery-item.processing .status-badge,
+.gallery-item.failed .status-badge {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.status-badge.processing {
+  background: rgba(200, 168, 130, 0.15);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.status-badge.completed {
+  background: rgba(52, 168, 83, 0.15);
+  border-color: #34A853;
+  color: #34A853;
+}
+
+.status-badge.failed {
+  background: rgba(234, 67, 53, 0.15);
+  border-color: #EA4335;
+  color: #EA4335;
+}
+
+/* Gallery Delete Button */
+.gallery-delete-btn {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 20;
+  opacity: 0;
+  transition: opacity 0.2s ease, background 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 0;
+}
+
+.gallery-item:hover .gallery-delete-btn {
+  opacity: 1;
+}
+
+.gallery-delete-btn:hover {
+  background: rgba(234, 67, 53, 0.9);
+}
+
+/* Pulse Loader Bar */
+.loader-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 4px;
+  background: var(--accent);
+  width: 50%;
   z-index: 10;
+  animation: progressPulse 1.5s infinite ease-in-out alternate;
+}
+
+@keyframes progressPulse {
+  0% {
+    transform: translateX(-100%);
+    width: 50%;
+  }
+
+  100% {
+    transform: translateX(200%);
+    width: 50%;
+  }
 }
 
 /* Responsive */
 @media (max-width: 480px) {
-  .container { padding: 2rem 1rem; }
-  header h1 { font-size: 2rem; }
-  .dropzone { padding: 3rem 1.5rem; }
-  .action-buttons { flex-direction: column; }
-  .btn-primary, .btn-secondary { width: 100%; }
+  .container {
+    padding: 2rem 1rem;
+  }
+
+  header h1 {
+    font-size: 2rem;
+  }
+
+  .dropzone {
+    padding: 3rem 1.5rem;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+  }
 }

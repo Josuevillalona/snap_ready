@@ -6,3 +6,4 @@ __pycache__/
 
 prompt_overrides.json
 .DS_Store
+*firebase-adminsdk*.json
