@@ -16,6 +16,7 @@ mediapipe = "^0.10.20"
 google-genai = "^1.2.0"
 opencv-python-headless = "^4.11.0.86"
 firebase-admin = "*"
+python-dotenv = "*"
 
 [build-system]
 requires = ["poetry-core"]
